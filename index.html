@@ -1,0 +1,1007 @@
+<html>
+    <head>
+        <title>PRAC — Borderless money made simple</title>
+        <style>
+            /* -------------------------
+            RESET + BASE
+            ------------------------- */
+            :root{
+            --bg:#050506;
+            --card:#0b0b0c;
+            --muted:#9aa0a6;
+            --accent1: #7c3aed;
+            --accent2: #00d4ff;
+            --glass: rgba(255,255,255,0.03);
+            --glass-2: rgba(255,255,255,0.02);
+            --maxw: 1200px;
+            --radius-xl: 28px;
+            --radius-md: 12px;
+            --ease: cubic-bezier(.18,.9,.32,1);
+            }
+            *{box-sizing:border-box;margin:0;padding:0}
+            html,body{height:100%;scroll-behavior: smooth}
+            body{
+            min-height:100%;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(123,60,255,0.08), transparent),
+                        radial-gradient(900px 500px at 90% 80%, rgba(34,211,238,0.06), transparent),
+                        var(--bg);
+            color: #fff;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            line-height:1.4;
+            padding-bottom:64px;
+            overflow-x: hidden;
+            }
+
+            .container{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+
+            /* -------------------------
+            ANIMATED BACKGROUND PARTICLES
+            ------------------------- */
+            .bg-particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+            }
+            .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(124, 58, 237, 0.3);
+            border-radius: 50%;
+            animation: float-particle 20s infinite ease-in-out;
+            }
+            @keyframes float-particle {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+            }
+
+            /* -------------------------
+            NAV - Enhanced with glassmorphism
+            ------------------------- */
+            header.nav{
+            position:sticky;top:0;z-index:40;
+            backdrop-filter: blur(12px) saturate(180%);
+            background: linear-gradient(180deg, rgba(11,11,12,0.85), rgba(11,11,12,0.7));
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s var(--ease);
+            }
+            header.nav.scrolled {
+            background: linear-gradient(180deg, rgba(11,11,12,0.95), rgba(11,11,12,0.85));
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            }
+            .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+            .logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;transition: transform 0.3s var(--ease)}
+            .logo:hover { transform: scale(1.05); }
+            .logo-mark{
+            width:44px;height:44px;border-radius:10px;
+            background:linear-gradient(135deg,#7c3aed,#ff6fb9);
+            display:inline-flex;align-items:center;justify-content:center;
+            font-weight:800;
+            position: relative;
+            overflow: hidden;
+            }
+            .logo-mark::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: translateX(-100%);
+            animation: shine 3s infinite;
+            }
+            @keyframes shine {
+            0% { transform: translateX(-100%); }
+            50%, 100% { transform: translateX(200%); }
+            }
+            .logo-text{font-weight:700;letter-spacing:1px}
+            nav.main-nav{display:flex;align-items:center;gap:18px}
+            nav.main-nav a{
+            color:var(--muted);text-decoration:none;font-size:15px;padding:8px 12px;border-radius:8px;
+            transition: all 0.3s var(--ease);
+            position: relative;
+            }
+            nav.main-nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            transform: translateX(-50%);
+            transition: width 0.3s var(--ease);
+            }
+            nav.main-nav a:hover {
+            color:#fff;
+            transform: translateY(-2px);
+            }
+            nav.main-nav a:hover::after { width: 80%; }
+            .btn{
+            padding:10px 18px;border-radius:10px;text-decoration:none;
+            font-weight:600;cursor:pointer;border:none;
+            transition: all 0.3s var(--ease);
+            display: inline-block;
+            }
+            .btn.ghost{
+            background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,255,255,0.1);
+            color:var(--muted);
+            }
+            .btn.ghost:hover {
+            background:rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            }
+            .btn.primary{
+            background:linear-gradient(90deg,#7c3aed,#ff6fb9);
+            box-shadow:0 8px 30px rgba(124,58,237,0.25);
+            color:white;
+            position: relative;
+            overflow: hidden;
+            }
+            .btn.primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+            }
+            .btn.primary:hover {
+            box-shadow:0 12px 40px rgba(124,58,237,0.4);
+            transform: translateY(-2px);
+            }
+            .btn.primary:hover::before {
+            transform: translateX(100%);
+            }
+            .btn.large { padding: 12px 24px; font-size: 16px; }
+
+            .menu-btn{display:none;background:transparent;border:0;color:var(--muted);font-size:22px;padding:8px;cursor: pointer}
+
+            /* -------------------------
+            HERO GRID - Enhanced
+            ------------------------- */
+            main{margin-top:36px;position: relative;z-index: 1}
+            .hero{padding:48px 0 80px}
+            .hero-grid{display:grid;grid-template-columns:1fr 560px;gap:48px;align-items:center}
+            @media (max-width: 980px){
+            .hero-grid{grid-template-columns:1fr;gap:32px}
+            .menu-btn{display:inline-flex}
+            nav.main-nav{
+                display:none;position:absolute;right:20px;top:72px;
+                background:rgba(11,11,12,0.95);backdrop-filter:blur(12px);
+                padding:16px;border-radius:16px;flex-direction:column;min-width:200px;
+                border: 1px solid rgba(255,255,255,0.1);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            }
+            nav.main-nav.show{display:flex;animation: slideDown 0.3s var(--ease)}
+            }
+            @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+            }
+
+            .pill{
+            display:inline-block;padding:10px 16px;
+            background:rgba(124,58,237,0.1);
+            border:1px solid rgba(124,58,237,0.2);
+            border-radius:999px;color:#a78bfa;font-size:14px;
+            margin-bottom:24px;font-weight: 500;
+            animation: pulse-glow 3s infinite;
+            }
+            @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 rgba(124,58,237,0.4); }
+            50% { box-shadow: 0 0 20px rgba(124,58,237,0.4); }
+            }
+            h1{
+            font-size:52px;line-height:1.1;margin-bottom:20px;font-weight:800;
+            letter-spacing: -0.02em;
+            }
+            h1 .accent{
+            background:linear-gradient(120deg,var(--accent2),var(--accent1),#ff6fb9);
+            -webkit-background-clip:text;background-clip:text;color:transparent;
+            background-size: 200% 200%;
+            animation: gradient-shift 8s ease infinite;
+            }
+            @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            }
+            .lead{
+            color:var(--muted);max-width:58ch;margin-bottom:28px;font-size:17px;
+            line-height: 1.6;
+            }
+            .cta-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}
+            .stats{display:flex;gap:14px;margin-top:8px;flex-wrap: wrap}
+            .stat{
+            background:rgba(255,255,255,0.02);
+            padding:16px;border-radius:12px;font-size:14px;
+            color:var(--muted);
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: all 0.3s var(--ease);
+            cursor: default;
+            }
+            .stat:hover {
+            background:rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+            transform: translateY(-3px);
+            }
+
+            /* -------------------------
+            ANIMATED CARD - Major enhancements
+            ------------------------- */
+            .card-wrap{
+            display:flex;justify-content:center;align-items:center;
+            min-height:560px;position:relative;perspective: 1500px;
+            }
+            .glow-orb{
+            position:absolute;width:500px;height:500px;border-radius:999px;
+            filter:blur(80px);opacity:0.4;
+            background: radial-gradient(circle at 30% 30%, rgba(45,212,255,0.3), transparent 40%),
+                        radial-gradient(circle at 70% 70%, rgba(123,60,237,0.25), transparent 40%);
+            left:-50px;top:-20px;z-index:1;pointer-events:none;
+            animation: orb-pulse 8s ease-in-out infinite;
+            }
+            @keyframes orb-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.1); opacity: 0.6; }
+            }
+            .card{
+            width:460px;height:560px;border-radius:var(--radius-xl);
+            background:linear-gradient(165deg,rgba(20,20,22,0.95), rgba(8,8,9,0.98));
+            position:relative;z-index:10;overflow:hidden;
+            box-shadow:0 50px 100px rgba(2,6,23,0.9), 0 0 0 1px rgba(255,255,255,0.05);
+            transition: all 0.5s var(--ease);
+            transform-style: preserve-3d;
+            }
+            .card:hover {
+            box-shadow:0 60px 120px rgba(124,58,237,0.3), 0 0 0 1px rgba(124,58,237,0.2);
+            }
+            
+            /* Animated gradient overlay */
+            .card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, 
+                rgba(124,58,237,0.5), 
+                rgba(0,212,255,0.5), 
+                rgba(255,111,185,0.5),
+                rgba(124,58,237,0.5)
+            );
+            border-radius: var(--radius-xl);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s var(--ease);
+            background-size: 300% 300%;
+            animation: gradient-rotate 8s ease infinite;
+            }
+            @keyframes gradient-rotate {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            }
+            .card:hover::before {
+            opacity: 0.6;
+            }
+            
+            /* dotted mesh */
+            .dot-mesh{
+            position:absolute;inset:0;pointer-events:none;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 16px 16px;opacity:0.5;
+            animation: mesh-drift 20s linear infinite;
+            }
+            @keyframes mesh-drift {
+            0% { background-position: 0 0; }
+            100% { background-position: 16px 16px; }
+            }
+            
+            /* glossy shine - enhanced */
+            .shine{
+            position:absolute;right:40px;top:80px;width:50px;height:200px;
+            border-radius:16px;opacity:0.12;transform:rotate(18deg);
+            background:linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0));
+            animation: shine-move 4s ease-in-out infinite;
+            }
+            @keyframes shine-move {
+            0%, 100% { transform: rotate(18deg) translateY(0); }
+            50% { transform: rotate(18deg) translateY(20px); }
+            }
+            
+            .card-content{
+            position:absolute;left:28px;top:28px;right:28px;bottom:28px;
+            display:flex;flex-direction:column;justify-content:space-between;
+            }
+            .card-header{display:flex;align-items:center;gap:14px}
+            .chip{
+            width:60px;height:40px;border-radius:12px;
+            background:linear-gradient(135deg,#00d4ff,#7c3aed);
+            display:inline-flex;align-items:center;justify-content:center;
+            font-weight:700;font-size: 18px;
+            box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+            animation: chip-glow 3s ease-in-out infinite;
+            }
+            @keyframes chip-glow {
+            0%, 100% { box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+            50% { box-shadow: 0 6px 20px rgba(124,58,237,0.6); }
+            }
+            .card-body{margin-top:24px;color:var(--muted)}
+            .amount{
+            font-size:32px;font-weight:800;
+            background:linear-gradient(90deg, #fff, #a78bfa);
+            -webkit-background-clip:text;background-clip:text;
+            color:transparent;
+            transition: all 0.3s var(--ease);
+            }
+            .card-footer{
+            display:flex;justify-content:space-between;align-items:center;
+            color:var(--muted);font-size:14px;
+            }
+
+            /* floating animation - enhanced */
+            @keyframes floaty {
+            0%{transform: translateY(0) rotateX(0deg) rotateY(0deg) translateZ(0)}
+            25%{transform: translateY(-12px) rotateX(-5deg) rotateY(7deg) translateZ(10px)}
+            50%{transform: translateY(0) rotateX(3deg) rotateY(-6deg) translateZ(0)}
+            75%{transform: translateY(-8px) rotateX(-3deg) rotateY(4deg) translateZ(5px)}
+            100%{transform: translateY(0) rotateX(0deg) rotateY(0deg) translateZ(0)}
+            }
+            .card-anim{animation: floaty 10s var(--ease) infinite}
+
+            /* neon rim */
+            .neon-rim{
+            position:absolute;inset:0;border-radius:var(--radius-xl);
+            pointer-events:none;
+            box-shadow: 0 0 50px rgba(124,58,237,0.15), 
+                        inset 0 0 30px rgba(0,212,255,0.08);
+            animation: rim-pulse 4s ease-in-out infinite;
+            }
+            @keyframes rim-pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+            }
+
+            /* -------------------------
+            SECTIONS - Enhanced
+            ------------------------- */
+            section.section{
+            padding:90px 0;
+            border-top:1px solid rgba(255,255,255,0.03);
+            position: relative;
+            }
+            .section-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+            }
+            .subtitle {
+            color: var(--muted);
+            font-size: 18px;
+            margin-bottom: 48px;
+            max-width: 70ch;
+            }
+            .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+            .feature{
+            background:rgba(255,255,255,0.02);
+            padding:24px;border-radius:16px;
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: all 0.4s var(--ease);
+            cursor: default;
+            }
+            .feature:hover {
+            background:rgba(255,255,255,0.05);
+            border-color: rgba(124,58,237,0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(124,58,237,0.15);
+            }
+            .feature strong {
+            font-size: 18px;
+            display: block;
+            margin-bottom: 8px;
+            }
+            
+            @media (max-width:980px){
+            .grid-3{grid-template-columns:1fr}
+            .card{width:92%;height:480px}
+            h1{font-size:40px}
+            .section-title{font-size:28px}
+            }
+
+            /* Divider with gradient */
+            .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent);
+            margin-bottom: 48px;
+            }
+
+            /* small utilities */
+            .footer{
+            padding:48px 0;color:var(--muted);font-size:14px;
+            text-align:center;border-top: 1px solid rgba(255,255,255,0.03);
+            }
+
+            a { color: inherit; }
+            .link-ghost{
+            color:var(--muted);text-decoration:underline dotted 1px;
+            transition: color 0.3s var(--ease);
+            }
+            .link-ghost:hover { color: #fff; }
+
+            @media (max-width:540px){
+            h1{font-size:32px}
+            .pill{font-size:13px}
+            .logo-text{display:none}
+            .card{height:420px}
+            .hero{padding:32px 0 60px}
+            }
+
+            /* fade-in animations */
+            .fade-up{opacity:0;transform:translateY(20px)}
+            .fade-up.in{opacity:1;transform:none;transition:opacity 0.8s var(--ease), transform 0.8s var(--ease)}
+            
+            /* Number counter animation */
+            @keyframes counter {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-counter {
+            animation: counter 0.5s var(--ease);
+            }
+
+            /* Scroll indicator */
+            .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            transform-origin: left;
+            transform: scaleX(0);
+            z-index: 9999;
+            transition: transform 0.1s ease-out;
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- Scroll Progress Indicator -->
+        <div class="scroll-indicator" id="scrollProgress"></div>
+
+        <!-- Animated Background Particles -->
+        <div class="bg-particles" id="particles"></div>
+
+        <!-- NAV -->
+        <header class="nav" id="mainHeader">
+            <div class="container nav-inner">
+            <a class="logo" href="#top" aria-label="PRAC home">
+                <div class="logo-mark" aria-hidden="true">P</div>
+                <div class="logo-text">PRAC</div>
+            </a>
+
+            <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+                <a href="#features">Features</a>
+                <a href="#live-exchange">Live exchange</a>
+                <a href="#usecases">Use cases</a>
+                <a href="#security">Security</a>
+                <a class="btn ghost" href="login.html">Log in</a>
+                <a class="btn primary" href="signup.html">Get started</a>
+            </nav>
+
+            <button id="menuBtn" class="menu-btn" aria-label="Toggle menu" type="button">☰</button>
+            </div>
+        </header>
+
+        <!-- HERO -->
+        <main id="top">
+            <section class="hero">
+            <div class="container hero-grid">
+                <!-- LEFT -->
+                <div>
+                <div class="pill">⚡ Real-time FX with transparent rates</div>
+                <h1 class="fade-up">Borderless money <span class="accent">made simple</span></h1>
+                <p class="lead fade-up" style="transition-delay:.08s">
+                    PRAC unifies sending, receiving and converting money into one secure, global wallet.
+                    Instant transfers, live FX, and transparent pricing—built for a modern, international life.
+                </p>
+
+                <div class="cta-row fade-up" style="transition-delay:.16s">
+                    <a class="btn primary large" href="signup.html">Create your wallet →</a>
+                    <a class="btn ghost" href="#features">Explore features</a>
+                </div>
+
+                <div class="stats fade-up" style="margin-top:12px; transition-delay:.24s">
+                    <div class="stat">
+                    <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Transfer speed</div>
+                    <div style="font-weight:800;font-size:16px">Instant</div>
+                    </div>
+                    <div class="stat">
+                    <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Currencies</div>
+                    <div style="font-weight:800;font-size:16px">50+ wallets</div>
+                    </div>
+                    <div class="stat">
+                    <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Fees</div>
+                    <div style="font-weight:800;font-size:16px">Transparent</div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- RIGHT (card) -->
+                <div class="card-wrap">
+                <div class="glow-orb" aria-hidden="true"></div>
+
+                <div class="card card-anim" id="floatingCard" role="img" aria-label="animated card">
+                    <div class="dot-mesh" aria-hidden="true"></div>
+                    <div class="shine" aria-hidden="true"></div>
+                    <div class="neon-rim" aria-hidden="true"></div>
+
+                    <div class="card-content">
+                    <div>
+                        <div class="card-header">
+                        <div class="chip" aria-hidden="true">P</div>
+                        <div>
+                            <div style="font-weight:700;font-size:16px">PRAC Wallet</div>
+                            <div style="font-size:13px;color:var(--muted)">USD • Primary</div>
+                        </div>
+                        </div>
+
+                        <div class="card-body">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:28px">
+                            <div>
+                            <div style="color:var(--muted);font-size:13px;margin-bottom:8px">Balance</div>
+                            <div class="amount">$ <span id="balanceAmount">12,430</span></div>
+                            </div>
+                            <div style="text-align:right">
+                            <div style="color:var(--muted);font-size:13px;margin-bottom:8px">FX rate</div>
+                            <div style="font-weight:700;font-size:15px" id="fxRate">1 USD → 0.93 EUR</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:28px;color:var(--muted);font-size:13px;line-height:1.5">
+                            Recent: Received 500 USD • Sent 200 USD • Exchanged 120 USD
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div style="font-size:13px">⚡ Instant transfers</div>
+                        <div style="display:flex;gap:10px;align-items:center">
+                        <button class="btn ghost" type="button" onclick="simulateTransfer()" style="padding:8px 14px;font-size:14px">Send</button>
+                        <button class="btn primary" type="button" onclick="simulateReceive()" style="padding:8px 14px;font-size:14px">Receive</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+            </section>
+
+            <!-- ONE WALLET SECTION -->
+            <section class="section">
+            <div class="container">
+                <div class="divider"></div>
+                <h2 class="section-title fade-up">One wallet. Every border.</h2>
+                <p class="subtitle fade-up" style="transition-delay:.06s">Move money at the speed of the internet with a platform that's faster than banks, cheaper than exchange books, and simpler than multiple accounts.</p>
+
+                <div class="grid-3">
+                <div class="feature fade-up">
+                    <strong>⚡ Instant PRAC-to-PRAC</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Send and receive money worldwide in seconds with zero friction between PRAC users.</p>
+                </div>
+                <div class="feature fade-up" style="transition-delay:.08s">
+                    <strong>🔒 Security by design</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Encryption, fraud detection, and dispute management keep your funds protected 24/7.</p>
+                </div>
+                <div class="feature fade-up" style="transition-delay:.16s">
+                    <strong>💱 Real-time conversion</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Live FX rates with full price transparency. Convert only what you need—no hidden spreads.</p>
+                </div>
+                </div>
+            </div>
+            </section>
+
+            <!-- FEATURES -->
+            <section id="features" class="section">
+            <div class="container">
+                <h2 class="section-title fade-up">Features built for you</h2>
+                <div class="grid-3">
+                <div class="feature fade-up">
+                    <strong>🚀 Fast Transfers</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Move money internationally in seconds with competitive FX rates.</p>
+                </div>
+                <div class="feature fade-up" style="transition-delay:.08s">
+                    <strong>🌍 Multiple Wallets</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Hold balances in 50+ currencies and switch instantly between them.</p>
+                </div>
+                <div class="feature fade-up" style="transition-delay:.16s">
+                    <strong>💎 Transparent Fees</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">No hidden charges—see live FX and fees before you send.</p>
+                </div>
+                </div>
+            </div>
+            </section>
+
+            <!-- LIVE EXCHANGE -->
+            <section id="live-exchange" class="section">
+            <div class="container">
+                <h2 class="section-title fade-up">Live exchange rates</h2>
+                <p class="subtitle fade-up" style="transition-delay:.06s">Real-time currency rates updated every second. What you see is what you get.</p>
+                <div style="display:flex;gap:16px;flex-wrap:wrap">
+                <div class="feature fade-up" style="min-width:180px;flex:1">
+                    <div style="font-size:13px;color:var(--muted);margin-bottom:8px">USD → EUR</div>
+                    <div style="font-weight:800;font-size:24px;background:linear-gradient(90deg,#00d4ff,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent" id="rate-usd-eur">0.93</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:6px">Updated live</div>
+                </div>
+                <div class="feature fade-up" style="min-width:180px;flex:1;transition-delay:.08s">
+                    <div style="font-size:13px;color:var(--muted);margin-bottom:8px">USD → GBP</div>
+                    <div style="font-weight:800;font-size:24px;background:linear-gradient(90deg,#00d4ff,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent" id="rate-usd-gbp">0.79</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:6px">Updated live</div>
+                </div>
+                <div class="feature fade-up" style="min-width:180px;flex:1;transition-delay:.16s">
+                    <div style="font-size:13px;color:var(--muted);margin-bottom:8px">USD → MAD</div>
+                    <div style="font-weight:800;font-size:24px;background:linear-gradient(90deg,#00d4ff,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent" id="rate-usd-mad">10.25</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:6px">Updated live</div>
+                </div>
+                </div>
+            </div>
+            </section>
+
+            <!-- USE CASES -->
+            <section id="usecases" class="section">
+            <div class="container">
+                <h2 class="section-title fade-up">Built for borderless living</h2>
+                <p class="subtitle fade-up" style="transition-delay:.06s">For freelancers, travelers, remote workers and businesses operating across borders.</p>
+
+                <div class="grid-3">
+                <div class="feature fade-up">
+                    <strong>💼 Multi-currency wallet</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Hold, manage, and execute business transactions in 50+ currencies from one global wallet.</p>
+                </div>
+                <div class="feature fade-up" style="transition-delay:.08s">
+                    <strong>📊 Track in real time</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Instant notifications and live transaction tracking for complete peace of mind.</p>
+                </div>
+                <div class="feature fade-up" style="transition-delay:.16s">
+                    <strong>🏢 Business tools</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Invoice clients globally and get paid into local currencies with ease.</p>
+                </div>
+                </div>
+
+                <div class="grid-3" style="margin-top:20px">
+                <div class="feature fade-up">
+                    <strong>✈️ For Travelers</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Convert currency when you need it and avoid surprise fees abroad.</p>
+                </div>
+                <div class="feature fade-up" style="transition-delay:.08s">
+                    <strong>💻 Remote Workers</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Receive salaries from foreign employers and withdraw to local currency easily.</p>
+                </div>
+                <div class="feature fade-up" style="transition-delay:.16s">
+                    <strong>🏭 Businesses</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Pay suppliers worldwide at low cost and track every transaction in real time.</p>
+                </div>
+                </div>
+            </div>
+            </section>
+
+            <!-- SECURITY -->
+            <section id="security" class="section">
+            <div class="container">
+                <div class="divider"></div>
+                <h2 class="section-title fade-up">Security, compliance, trust</h2>
+                <p class="subtitle fade-up" style="transition-delay:.06s">Every transfer is protected with bank-grade encryption, rigorous monitoring, and layered fraud prevention. Dispute management gives you confidence when something needs attention.</p>
+
+                <div class="grid-3">
+                <div class="feature fade-up">
+                    <strong>✓ Verified transfers</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Every transaction is verified and encrypted with industry-leading security.</p>
+                </div>
+                <div class="feature fade-up" style="transition-delay:.08s">
+                    <strong>🌐 Global coverage</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Cross-border support with local payout options where available.</p>
+                </div>
+                <div class="feature fade-up" style="transition-delay:.16s">
+                    <strong>🔐 Privacy & controls</strong>
+                    <p style="color:var(--muted);margin-top:12px;line-height:1.6">Role-based access, secure authentication, and complete audit trails.</p>
+                </div>
+                </div>
+            </div>
+            </section>
+
+            <!-- CALL TO ACTION -->
+            <section class="section" style="background:linear-gradient(135deg,rgba(124,58,237,0.05),rgba(0,212,255,0.05));border-radius:24px;margin:0 20px">
+            <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;padding:48px 32px">
+                <div>
+                <h3 style="font-size:28px;margin-bottom:12px;font-weight:800">Ready to move money across borders?</h3>
+                <div style="color:var(--muted);font-size:17px">Create a PRAC wallet and start sending instantly—no fees for your first month.</div>
+                </div>
+                <div>
+                <a class="btn primary large" href="signup.html" style="white-space:nowrap">Get started—it's free →</a>
+                </div>
+            </div>
+            </section>
+
+            <div class="footer">
+            <div class="container">
+                <div style="margin-bottom:16px;font-size:16px;font-weight:600">PRAC — Pay • Receive • Convert</div>
+                <div>© <span id="year"></span> PRAC · <a class="link-ghost" href="#security">Security</a> · <a class="link-ghost" href="#features">Support</a> · <a class="link-ghost" href="#live-exchange">Rates</a></div>
+            </div>
+            </div>
+
+        </main>
+
+        <script>
+            // ========== Enhanced UI behaviors ==========
+            (function(){
+            // Helper functions - FIXED: Use different variable names to avoid conflicts
+            const select = sel => document.querySelector(sel);
+            const selectAll = sel => Array.from(document.querySelectorAll(sel));
+
+            // Set year
+            const yearEl = document.getElementById('year');
+            if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+            // Menu toggle with animation
+            const menuBtn = document.getElementById('menuBtn');
+            const mainNav = document.getElementById('mainNav');
+            if (menuBtn && mainNav) {
+                menuBtn.addEventListener('click', () => mainNav.classList.toggle('show'));
+            }
+
+            // Fade-up appearance with intersection observer
+            const fadeUpObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in');
+                }
+                });
+            }, { threshold: 0.1 });
+
+            selectAll('.fade-up').forEach(el => fadeUpObserver.observe(el));
+
+            // Scroll progress indicator
+            const scrollProgress = document.getElementById('scrollProgress');
+            if (scrollProgress) {
+                window.addEventListener('scroll', () => {
+                const windowHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrolled = (window.scrollY / windowHeight);
+                scrollProgress.style.transform = `scaleX(${scrolled})`;
+                });
+            }
+
+            // Navbar scroll effect
+            const mainHeader = document.getElementById('mainHeader');
+            if (mainHeader) {
+                window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    mainHeader.classList.add('scrolled');
+                } else {
+                    mainHeader.classList.remove('scrolled');
+                }
+                });
+            }
+
+            // Create animated particles
+            const particlesContainer = document.getElementById('particles');
+            if (particlesContainer) {
+                for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.setProperty('--tx', (Math.random() - 0.5) * 400 + 'px');
+                particle.style.setProperty('--ty', (Math.random() - 0.5) * 400 + 'px');
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+                }
+            }
+
+            // Enhanced floating card with mouse parallax
+            const card = document.getElementById('floatingCard');
+            let bounds = card ? card.getBoundingClientRect() : {left:0,top:0,width:0,height:0};
+            let isHovering = false;
+
+            function getClientCoords(e){
+                if (e.touches && e.touches[0]) {
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+                if ('clientX' in e && 'clientY' in e) {
+                return { x: e.clientX, y: e.clientY };
+                }
+                return null;
+            }
+
+            function handleMove(e){
+                if (!card || !isHovering) return;
+                const coords = getClientCoords(e);
+                if (!coords) return;
+                
+                const x = coords.x - (bounds.left + bounds.width/2);
+                const y = coords.y - (bounds.top + bounds.height/2);
+                const rx = (-y / (bounds.height || 1)) * 10;
+                const ry = (x / (bounds.width || 1)) * 15;
+                
+                card.style.animation = 'none';
+                card.style.transform = `translateZ(20px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.02)`;
+            }
+
+            function resetCard(){ 
+                if (card) {
+                card.style.animation = '';
+                card.style.transform = '';
+                }
+                isHovering = false;
+            }
+
+            if (card) {
+                card.addEventListener('mouseenter', () => {
+                isHovering = true;
+                bounds = card.getBoundingClientRect();
+                });
+                card.addEventListener('mouseleave', resetCard);
+                window.addEventListener('pointermove', handleMove);
+                window.addEventListener('resize', () => { 
+                if (card) bounds = card.getBoundingClientRect(); 
+                });
+            }
+
+            // Enhanced FX rate updates with animation
+            function randomVariance(n, spread){
+                return +((n + (Math.random()*2-1)*spread).toFixed(4));
+            }
+            
+            function updateFx(){
+                const usd_eur = randomVariance(0.93, 0.003);
+                const usd_gbp = randomVariance(0.79, 0.003);
+                const usd_mad = randomVariance(10.25, 0.08);
+                
+                const elEur = document.getElementById('rate-usd-eur');
+                const elGbp = document.getElementById('rate-usd-gbp');
+                const elMad = document.getElementById('rate-usd-mad');
+                const fxRate = document.getElementById('fxRate');
+                
+                if (elEur) {
+                elEur.style.animation = 'counter 0.5s var(--ease)';
+                setTimeout(() => elEur.style.animation = '', 500);
+                elEur.textContent = usd_eur;
+                }
+                if (elGbp) {
+                elGbp.style.animation = 'counter 0.5s var(--ease)';
+                setTimeout(() => elGbp.style.animation = '', 500);
+                elGbp.textContent = usd_gbp;
+                }
+                if (elMad) {
+                elMad.style.animation = 'counter 0.5s var(--ease)';
+                setTimeout(() => elMad.style.animation = '', 500);
+                elMad.textContent = usd_mad;
+                }
+                if (fxRate) {
+                fxRate.textContent = `1 USD → ${usd_eur} EUR`;
+                }
+            }
+            
+            setInterval(updateFx, 3000);
+            updateFx();
+
+            // Enhanced transfer simulations
+            function parseBalanceText(text){
+                return parseFloat(String(text).replace(/,/g,'')) || 12430;
+            }
+
+            window.simulateTransfer = function(){
+                const b = document.getElementById('balanceAmount');
+                if (!b) return;
+                
+                let val = parseBalanceText(b.textContent);
+                const amount = Math.floor(Math.random()*300+50);
+                val = Math.max(0, val - amount);
+                
+                b.classList.add('animate-counter');
+                b.textContent = Math.round(val).toLocaleString();
+                setTimeout(() => b.classList.remove('animate-counter'), 500);
+                
+                pulseCard('#ff6b6b');
+                showNotification(`Sent $${amount}`, 'send');
+            }
+
+            window.simulateReceive = function(){
+                const b = document.getElementById('balanceAmount');
+                if (!b) return;
+                
+                let val = parseBalanceText(b.textContent);
+                const amount = Math.floor(Math.random()*1200+100);
+                val = val + amount;
+                
+                b.classList.add('animate-counter');
+                b.textContent = Math.round(val).toLocaleString();
+                setTimeout(() => b.classList.remove('animate-counter'), 500);
+                
+                pulseCard('#5af78e');
+                showNotification(`Received $${amount}`, 'receive');
+            }
+
+            function pulseCard(color){
+                if (!card || !card.animate) return;
+                card.animate([
+                { boxShadow: '0 50px 100px rgba(2,6,23,0.9), 0 0 0 1px rgba(255,255,255,0.05)'},
+                { boxShadow: `0 50px 150px ${color}88, 0 0 0 2px ${color}44`},
+                { boxShadow: '0 50px 100px rgba(2,6,23,0.9), 0 0 0 1px rgba(255,255,255,0.05)'}
+                ], { duration: 800, easing: 'ease-out' });
+            }
+
+            function showNotification(text, type) {
+                const notification = document.createElement('div');
+                notification.textContent = text;
+                notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${type === 'send' ? 'rgba(255,107,107,0.2)' : 'rgba(90,247,142,0.2)'};
+                border: 1px solid ${type === 'send' ? 'rgba(255,107,107,0.4)' : 'rgba(90,247,142,0.4)'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 12px;
+                backdrop-filter: blur(10px);
+                z-index: 10000;
+                animation: slideIn 0.3s var(--ease);
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s var(--ease)';
+                setTimeout(() => notification.remove(), 300);
+                }, 2000);
+            }
+
+            // Add notification animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Close nav when link clicked (mobile)
+            selectAll('#mainNav a').forEach(a => {
+                a.addEventListener('click', () => {
+                if (mainNav && mainNav.classList.contains('show')) {
+                    mainNav.classList.remove('show');
+                }
+                });
+            });
+
+            // Smooth scroll for anchor links
+            selectAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href.length > 1) {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+                });
+            });
+
+            })();
+        </script>
+    </body>
+</html>

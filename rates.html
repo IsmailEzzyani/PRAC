@@ -1,0 +1,653 @@
+<html>
+    <head>
+        <title>PRAC — Exchange Rates</title>
+        <style>
+            :root {
+                --bg: #050506;
+                --card: #0b0b0c;
+                --muted: #9aa0a6;
+                --accent1: #7c3aed;
+                --accent2: #00d4ff;
+                --glass: rgba(255,255,255,0.03);
+                --maxw: 1200px;
+                --radius-xl: 28px;
+                --radius-md: 12px;
+                --ease: cubic-bezier(.18,.9,.32,1);
+            }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            html, body { height: 100%; }
+            body {
+                min-height: 100%;
+                font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+                background: radial-gradient(1200px 600px at 10% 10%, rgba(123,60,255,0.08), transparent),
+                            radial-gradient(900px 500px at 90% 80%, rgba(34,211,238,0.06), transparent),
+                            var(--bg);
+                color: #fff;
+                -webkit-font-smoothing: antialiased;
+                line-height: 1.4;
+            }
+
+            .container { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+
+            header.nav {
+                position: sticky; top: 0; z-index: 40;
+                backdrop-filter: blur(12px) saturate(180%);
+                background: linear-gradient(180deg, rgba(11,11,12,0.85), rgba(11,11,12,0.7));
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+            .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+            .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+            .logo-mark {
+                width: 44px; height: 44px; border-radius: 10px;
+                background: linear-gradient(135deg, var(--accent1), #ff6fb9);
+                display: inline-flex; align-items: center; justify-content: center;
+                font-weight: 800;
+            }
+            .logo-text { font-weight: 700; letter-spacing: 1px; }
+            nav.main-nav { display: flex; align-items: center; gap: 18px; }
+            nav.main-nav a {
+                color: var(--muted); text-decoration: none; font-size: 15px; padding: 8px 12px; border-radius: 8px;
+                transition: all 0.3s var(--ease);
+            }
+            nav.main-nav a:hover { color: #fff; }
+            nav.main-nav a.active {
+                color: #a78bfa;
+                background: rgba(124, 58, 237, 0.1);
+            }
+
+            .btn {
+                padding: 10px 18px; border-radius: 10px; text-decoration: none;
+                font-weight: 600; cursor: pointer; border: none;
+                transition: all 0.3s var(--ease);
+                display: inline-block;
+            }
+            .btn.ghost {
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.1);
+                color: var(--muted);
+            }
+            .btn.primary {
+                background: linear-gradient(90deg, var(--accent1), #ff6fb9);
+                box-shadow: 0 8px 30px rgba(124,58,237,0.25);
+                color: white;
+            }
+
+            .rates-hero {
+                padding: 80px 0;
+                background: linear-gradient(135deg, rgba(91,33,182,0.1), rgba(124,58,237,0.05));
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 52px; line-height: 1.1; margin-bottom: 20px; font-weight: 800;
+                letter-spacing: -0.02em;
+            }
+
+            .subtitle {
+                color: var(--muted);
+                font-size: 18px;
+                margin-bottom: 48px;
+                max-width: 70ch;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .rates-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin: 40px 0;
+            }
+
+            .rate-card {
+                background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(0,212,255,0.05));
+                border-radius: var(--radius-xl);
+                padding: 24px;
+                text-align: center;
+                border: 1px solid rgba(124,58,237,0.2);
+                transition: all 0.3s var(--ease);
+            }
+
+            .rate-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 20px 60px rgba(124,58,237,0.3);
+                background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(0,212,255,0.08));
+            }
+
+            .rate-value {
+                font-size: 36px;
+                font-weight: 800;
+                background: linear-gradient(90deg, var(--accent1), var(--accent2));
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                margin: 16px 0;
+            }
+
+            .feature {
+                background: rgba(255,255,255,0.02);
+                padding: 24px; border-radius: 16px;
+                border: 1px solid rgba(255,255,255,0.04);
+                margin: 60px 0;
+            }
+
+            .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+
+            .footer {
+                padding: 48px 0; color: var(--muted); font-size: 14px;
+                text-align: center; border-top: 1px solid rgba(255,255,255,0.03);
+                margin-top: 60px;
+            }
+
+            /* 🌍 ENHANCED WORLD RATES TABLE */
+            #world-rates {
+                margin-top: 80px;
+                padding: 40px;
+                background: linear-gradient(135deg, rgba(124,58,237,0.05), rgba(0,212,255,0.03));
+                border-radius: 20px;
+                border: 1px solid rgba(124,58,237,0.1);
+                position: relative;
+                overflow: hidden;
+            }
+
+            #world-rates::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            }
+
+            #rates-table {
+                max-height: 600px;
+                overflow-y: auto;
+                margin-top: 30px;
+                border-radius: 14px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: rgba(255,255,255,0.02);
+                backdrop-filter: blur(10px);
+            }
+
+            /* Custom scrollbar */
+            #rates-table::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            #rates-table::-webkit-scrollbar-track {
+                background: rgba(255,255,255,0.02);
+                border-radius: 4px;
+            }
+
+            #rates-table::-webkit-scrollbar-thumb {
+                background: linear-gradient(180deg, var(--accent1), var(--accent2));
+                border-radius: 4px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th, td {
+                padding: 16px;
+                text-align: left;
+                border-bottom: 1px solid rgba(255,255,255,0.04);
+                transition: all 0.3s var(--ease);
+            }
+
+            th {
+                background: rgba(255,255,255,0.05);
+                font-weight: 600;
+                color: #a78bfa;
+                position: sticky;
+                top: 0;
+                backdrop-filter: blur(10px);
+            }
+
+            tr:hover {
+                background: rgba(255,255,255,0.03);
+            }
+
+            .currency-flag {
+                width: 24px;
+                height: 16px;
+                border-radius: 2px;
+                margin-right: 12px;
+                display: inline-block;
+                vertical-align: middle;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+
+            .currency-code {
+                font-weight: 600;
+                color: #fff;
+            }
+
+            .currency-name {
+                color: var(--muted);
+                font-size: 12px;
+                margin-left: 8px;
+            }
+
+            .rate-change {
+                font-size: 12px;
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-weight: 600;
+            }
+
+            .rate-change.positive {
+                background: rgba(90, 247, 142, 0.15);
+                color: #5af78e;
+            }
+
+            .rate-change.negative {
+                background: rgba(255, 107, 107, 0.15);
+                color: #ff6b6b;
+            }
+
+            .search-box {
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: var(--radius-md);
+                padding: 12px 16px;
+                color: white;
+                font-size: 16px;
+                width: 100%;
+                margin-bottom: 20px;
+                transition: all 0.3s var(--ease);
+            }
+
+            .search-box:focus {
+                outline: none;
+                border-color: var(--accent1);
+                box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+            }
+
+            .currency-symbol {
+                font-size: 18px;
+                margin-right: 8px;
+                opacity: 0.8;
+            }
+
+            @media (max-width: 980px) {
+                .grid-3 { grid-template-columns: 1fr; }
+                h1 { font-size: 40px; }
+                th, td { padding: 12px 8px; }
+            }
+
+            @media (max-width: 540px) {
+                .logo-text { display: none; }
+                h1 { font-size: 32px; }
+                .rates-grid { grid-template-columns: 1fr; }
+                #world-rates { padding: 20px; }
+            }
+        </style>
+    </head>
+    <body>
+
+        <!-- NAVIGATION -->
+        <header class="nav">
+            <div class="container nav-inner">
+                <a class="logo" href="index.html">
+                    <div class="logo-mark">P</div>
+                    <div class="logo-text">PRAC</div>
+                </a>
+
+                <nav class="main-nav">
+                    
+                    <a href="rates.html" class="active">Rates</a>
+                    <a class="btn ghost" href="login.html">Log out</a>
+                    <a class="btn primary" href="dashboard.html">Dashboard</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- HERO -->
+        <div class="rates-hero">
+            <div class="container">
+                <h1>Live Exchange Rates</h1>
+                <p class="subtitle">Real-time currency rates with no hidden fees. What you see is what you get.</p>
+            </div>
+        </div>
+
+        <div class="container">
+
+            <!-- Your existing rate cards (kept the same) -->
+            <div class="rates-grid">
+                <div class="rate-card">
+                    <div style="font-size: 14px; color: var(--muted);">USD → EUR</div>
+                    <div class="rate-value">0.93</div>
+                    <div style="color: #5af78e; font-size: 14px; font-weight: 600;">+0.02%</div>
+                    <div style="color: var(--muted); font-size: 12px; margin-top: 8px;">Updated just now</div>
+                </div>
+
+                <div class="rate-card">
+                    <div style="font-size: 14px; color: var(--muted);">USD → GBP</div>
+                    <div class="rate-value">0.79</div>
+                    <div style="color: #5af78e; font-size: 14px; font-weight: 600;">+0.15%</div>
+                    <div style="color: var(--muted); font-size: 12px; margin-top: 8px;">Updated just now</div>
+                </div>
+
+                <div class="rate-card">
+                    <div style="font-size: 14px; color: var(--muted);">EUR → USD</div>
+                    <div class="rate-value">1.08</div>
+                    <div style="color: #ff6b6b; font-size: 14px; font-weight: 600;">-0.08%</div>
+                    <div style="color: var(--muted); font-size: 12px; margin-top: 8px;">Updated just now</div>
+                </div>
+
+                <div class="rate-card">
+                    <div style="font-size: 14px; color: var(--muted);">USD → JPY</div>
+                    <div class="rate-value">148.5</div>
+                    <div style="color: #5af78e; font-size: 14px; font-weight: 600;">+0.32%</div>
+                    <div style="color: var(--muted); font-size: 12px; margin-top: 8px;">Updated just now</div>
+                </div>
+
+                <div class="rate-card">
+                    <div style="font-size: 14px; color: var(--muted);">USD → CAD</div>
+                    <div class="rate-value">1.35</div>
+                    <div style="color: #ff6b6b; font-size: 14px; font-weight: 600;">-0.05%</div>
+                    <div style="color: var(--muted); font-size: 12px; margin-top: 8px;">Updated just now</div>
+                </div>
+
+                <div class="rate-card">
+                    <div style="font-size: 14px; color: var(--muted);">USD → AUD</div>
+                    <div class="rate-value">1.52</div>
+                    <div style="color: #5af78e; font-size: 14px; font-weight: 600;">+0.18%</div>
+                    <div style="color: var(--muted); font-size: 12px; margin-top: 8px;">Updated just now</div>
+                </div>
+            </div>
+
+            <!-- Your existing features section (kept) -->
+            <div class="feature">
+                <h3 style="margin-bottom: 16px; text-align: center;">Why our rates are better</h3>
+                <div class="grid-3">
+                    <div class="feature">
+                        <strong>💰 Real market rates</strong>
+                        <p style="color: var(--muted); margin-top: 8px;">We use live interbank rates with minimal markup, saving you money on every transaction.</p>
+                    </div>
+                    <div class="feature">
+                        <strong>💎 No hidden fees</strong>
+                        <p style="color: var(--muted); margin-top: 8px;">See the exact amount you'll receive before you send. No surprises, no hidden charges.</p>
+                    </div>
+                    <div class="feature">
+                        <strong>⚡ Instant updates</strong>
+                        <p style="color: var(--muted); margin-top: 8px;">Rates update in real-time, ensuring you always get the best possible exchange rate.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🌍 ENHANCED SECTION: ALL WORLD CURRENCIES -->
+            <div id="world-rates">
+                <h2 style="font-size:32px; font-weight:700; text-align:center;">🌍 All Global Exchange Rates</h2>
+                <p style="color:var(--muted); text-align:center; margin-top:8px;">
+                    Live rates for 170+ currencies worldwide • Updated every minute
+                </p>
+
+                <!-- Search Box -->
+                <input type="text" id="currency-search" class="search-box" placeholder="🔍 Search currencies (e.g., EUR, Japanese Yen, €)...">
+
+                <div id="rates-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Currency</th>
+                                <th>Code</th>
+                                <th>Rate (per USD)</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rates-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="container">
+                <div style="margin-bottom: 16px; font-size: 16px; font-weight: 600;">PRAC — Pay • Receive • Convert</div>
+                <div>© 2024 PRAC · 
+                    <a href="#" style="color: var(--muted); text-decoration: none;">Security</a> · 
+                    <a href="#" style="color: var(--muted); text-decoration: none;">Support</a> · 
+                    <a href="rates.html" style="color: var(--muted); text-decoration: none;">Rates</a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Currency symbols and names mapping
+            const currencyData = {
+                "USD": { symbol: "💵", name: "US Dollar" },
+                "EUR": { symbol: "💶", name: "Euro" },
+                "GBP": { symbol: "💷", name: "British Pound" },
+                "JPY": { symbol: "💴", name: "Japanese Yen" },
+                "CAD": { symbol: "🇨🇦", name: "Canadian Dollar" },
+                "AUD": { symbol: "🇦🇺", name: "Australian Dollar" },
+                "CHF": { symbol: "🇨🇭", name: "Swiss Franc" },
+                "CNY": { symbol: "🇨🇳", name: "Chinese Yuan" },
+                "INR": { symbol: "🇮🇳", name: "Indian Rupee" },
+                "MXN": { symbol: "🇲🇽", name: "Mexican Peso" },
+                "BRL": { symbol: "🇧🇷", name: "Brazilian Real" },
+                "RUB": { symbol: "🇷🇺", name: "Russian Ruble" },
+                "KRW": { symbol: "🇰🇷", name: "South Korean Won" },
+                "SGD": { symbol: "🇸🇬", name: "Singapore Dollar" },
+                "NZD": { symbol: "🇳🇿", name: "New Zealand Dollar" },
+                "SEK": { symbol: "🇸🇪", name: "Swedish Krona" },
+                "NOK": { symbol: "🇳🇴", name: "Norwegian Krone" },
+                "DKK": { symbol: "🇩🇰", name: "Danish Krone" },
+                "ZAR": { symbol: "🇿🇦", name: "South African Rand" },
+                "HKD": { symbol: "🇭🇰", name: "Hong Kong Dollar" },
+                "TRY": { symbol: "🇹🇷", name: "Turkish Lira" },
+                "AED": { symbol: "🇦🇪", name: "UAE Dirham" },
+                "SAR": { symbol: "🇸🇦", name: "Saudi Riyal" },
+                "THB": { symbol: "🇹🇭", name: "Thai Baht" },
+                "MYR": { symbol: "🇲🇾", name: "Malaysian Ringgit" },
+                "IDR": { symbol: "🇮🇩", name: "Indonesian Rupiah" },
+                "PHP": { symbol: "🇵🇭", name: "Philippine Peso" },
+                "PLN": { symbol: "🇵🇱", name: "Polish Zloty" },
+                "CZK": { symbol: "🇨🇿", name: "Czech Koruna" },
+                "HUF": { symbol: "🇭🇺", name: "Hungarian Forint" },
+                "ILS": { symbol: "🇮🇱", name: "Israeli Shekel" },
+                "EGP": { symbol: "🇪🇬", name: "Egyptian Pound" },
+                "NGN": { symbol: "🇳🇬", name: "Nigerian Naira" },
+                "ARS": { symbol: "🇦🇷", name: "Argentine Peso" },
+                "CLP": { symbol: "🇨🇱", name: "Chilean Peso" },
+                "COP": { symbol: "🇨🇴", name: "Colombian Peso" },
+                "PEN": { symbol: "🇵🇪", name: "Peruvian Sol" },
+                "VND": { symbol: "🇻🇳", name: "Vietnamese Dong" },
+                "PKR": { symbol: "🇵🇰", name: "Pakistani Rupee" },
+                "BDT": { symbol: "🇧🇩", name: "Bangladeshi Taka" },
+                "LKR": { symbol: "🇱🇰", name: "Sri Lankan Rupee" },
+
+               
+                "MAD": { symbol: "🇲🇦", name: "Moroccan Dirham" },
+                "TND": { symbol: "🇹🇳", name: "Tunisian Dinar" },
+                "DZD": { symbol: "🇩🇿", name: "Algerian Dinar" },
+                "QAR": { symbol: "🇶🇦", name: "Qatari Riyal" },
+                "KWD": { symbol: "🇰🇼", name: "Kuwaiti Dinar" },
+                "BHD": { symbol: "🇧🇭", name: "Bahraini Dinar" },
+                "OMR": { symbol: "🇴🇲", name: "Omani Rial" },
+
+                "UAH": { symbol: "🇺🇦", name: "Ukrainian Hryvnia" },
+                "GEL": { symbol: "🇬🇪", name: "Georgian Lari" },
+                "RON": { symbol: "🇷🇴", name: "Romanian Leu" },
+                "BGN": { symbol: "🇧🇬", name: "Bulgarian Lev" },
+                "HRK": { symbol: "🇭🇷", name: "Croatian Kuna" },
+                "ISK": { symbol: "🇮🇸", name: "Icelandic Krona" },
+                "MKD": { symbol: "🇲🇰", name: "Macedonian Denar" },
+
+                "KES": { symbol: "🇰🇪", name: "Kenyan Shilling" },
+                "GHS": { symbol: "🇬🇭", name: "Ghanaian Cedi" },
+                "TZS": { symbol: "🇹🇿", name: "Tanzanian Shilling" },
+                "UGX": { symbol: "🇺🇬", name: "Ugandan Shilling" },
+                "ETB": { symbol: "🇪🇹", name: "Ethiopian Birr" },
+
+                "JOD": { symbol: "🇯🇴", name: "Jordanian Dinar" },
+                "LBP": { symbol: "🇱🇧", name: "Lebanese Pound" },
+                "IQD": { symbol: "🇮🇶", name: "Iraqi Dinar" },
+
+                "KHR": { symbol: "🇰🇭", name: "Cambodian Riel" },
+                "LAK": { symbol: "🇱🇦", name: "Lao Kip" },
+                "MMK": { symbol: "🇲🇲", name: "Myanmar Kyat" },
+                "MNT": { symbol: "🇲🇳", name: "Mongolian Tögrög" },
+
+                "XOF": { symbol: "🌍", name: "West African CFA Franc" },
+                "XAF": { symbol: "🌍", name: "Central African CFA Franc" },
+                "XPF": { symbol: "🌺", name: "CFP Franc" },
+
+                "BBD": { symbol: "🇧🇧", name: "Barbadian Dollar" },
+                "JMD": { symbol: "🇯🇲", name: "Jamaican Dollar" },
+                "TTD": { symbol: "🇹🇹", name: "Trinidad & Tobago Dollar" },
+
+                "UYU": { symbol: "🇺🇾", name: "Uruguayan Peso" },
+                "BOB": { symbol: "🇧🇴", name: "Bolivian Boliviano" },
+                "PYG": { symbol: "🇵🇾", name: "Paraguayan Guaraní" },
+                "GTQ": { symbol: "🇬🇹", name: "Guatemalan Quetzal" },
+
+                "MUR": { symbol: "🇲🇺", name: "Mauritian Rupee" },
+                "SCR": { symbol: "🇸🇨", name: "Seychellois Rupee" },
+                "MZN": { symbol: "🇲🇿", name: "Mozambican Metical" },
+
+                "SRD": { symbol: "🇸🇷", name: "Surinamese Dollar" },
+                "NPR": { symbol: "🇳🇵", name: "Nepalese Rupee" }
+            };
+
+            // Add more currencies as needed...
+            
+
+            // Default data for currencies not in our mapping
+            const getCurrencyInfo = (code) => {
+                return currencyData[code] || { symbol: "💲", name: code };
+            };
+
+            // Your existing random animation
+            function updateRates() {
+                document.querySelectorAll('.rate-value').forEach(rate => {
+                    const current = parseFloat(rate.textContent);
+                    const change = (Math.random() - 0.5) * 0.1;
+                    const newValue = current + (current * change / 100);
+                    rate.textContent = newValue.toFixed(2);
+                    
+                    const changeElement = rate.nextElementSibling;
+                    if (change > 0) {
+                        changeElement.textContent = `+${change.toFixed(2)}%`;
+                        changeElement.style.color = '#5af78e';
+                    } else {
+                        changeElement.textContent = `${change.toFixed(2)}%`;
+                        changeElement.style.color = '#ff6b6b';
+                    }
+                });
+            }
+            setInterval(updateRates, 10000);
+
+            // 🌍 ENHANCED — FETCH ALL WORLD RATES
+            let allRates = {};
+
+            async function loadWorldRates() {
+                try {
+                    const res = await fetch("https://api.exchangerate.host/latest?base=USD");
+                    const data = await res.json();
+                    allRates = data.rates;
+
+                    displayRates(allRates);
+                } catch (error) {
+                    console.error("Error fetching rates:", error);
+                    // Fallback to mock data
+                    allRates = {
+                        "USD": 1.000000,
+                        "EUR": 0.930000,
+                        "GBP": 0.790000,
+                        "JPY": 148.500000,
+                        "CAD": 1.350000,
+                        "AUD": 1.520000,
+                        "CHF": 0.880000,
+                        "CNY": 7.250000,
+                        "INR": 83.000000,
+                        "MXN": 17.500000,
+                        "BRL": 5.200000,
+                        "RUB": 92.000000,
+                        "KRW": 1320.000000,
+                        "SGD": 1.340000,
+                        "NZD": 1.630000,
+                        "SEK": 10.500000,
+                        "NOK": 10.800000,
+                        "DKK": 6.900000,
+                        "ZAR": 18.800000,
+                        "HKD": 7.820000,
+                        "TRY": 32.000000,
+                        "AED": 3.670000,
+                        "SAR": 3.750000,
+                        "THB": 36.000000,
+                        "MYR": 4.720000,
+                        "IDR": 15600.000000,
+                        "PHP": 56.500000,
+                        "PLN": 4.200000,
+                        "CZK": 23.000000,
+                        "HUF": 360.000000,
+                        "ILS": 3.700000,
+                        "EGP": 30.900000,
+                        "NGN": 1600.000000,
+                        "ARS": 850.000000,
+                        "CLP": 950.000000,
+                        "COP": 3900.000000,
+                        "PEN": 3.800000,
+                        "VND": 24750.000000,
+                        "PKR": 280.000000,
+                        "BDT": 110.000000,
+                        "LKR": 320.000000
+                    };
+                    displayRates(allRates);
+                }
+            }
+
+            function displayRates(rates) {
+                const tbody = document.getElementById("rates-body");
+                tbody.innerHTML = "";
+
+                const currencies = Object.keys(rates).sort();
+
+                currencies.forEach(code => {
+                    const info = getCurrencyInfo(code);
+                    const rate = rates[code];
+                    const change = (Math.random() - 0.5) * 2; // Simulated change
+                    
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>
+                            <span class="currency-symbol">${info.symbol}</span>
+                            <span class="currency-name">${info.name}</span>
+                        </td>
+                        <td><span class="currency-code">${code}</span></td>
+                        <td>${rate.toFixed(6)}</td>
+                        <td>
+                            <span class="rate-change ${change >= 0 ? 'positive' : 'negative'}">
+                                ${change >= 0 ? '+' : ''}${change.toFixed(2)}%
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Search functionality
+            document.getElementById('currency-search').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#rates-body tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // Initial load
+            loadWorldRates();
+            setInterval(loadWorldRates, 60000); // Update every minute
+        </script>
+
+    </body>
+</html>
