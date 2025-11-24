@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, field_validator
 import secrets
 import hashlib
 import sqlite3
@@ -13,10 +13,10 @@ from datetime import datetime, timedelta
 
 app = FastAPI(title="PRAC API Gateway")
 
-# CORS middleware
+# CORS middleware - FIXED to allow all origins for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Restrict in production
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -81,7 +81,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     except Exception:
         return False
 
-# Data models with validation
+# Data models with validation - UPDATED to use field_validator
 class LoginData(BaseModel):
     username: str
     password: str
@@ -92,7 +92,8 @@ class SendData(BaseModel):
     recipient: str
     currency: str = "USD"
     
-    @validator('amount')
+    @field_validator('amount')
+    @classmethod
     def validate_amount(cls, v):
         if v <= 0:
             raise ValueError('Amount must be positive')
@@ -106,7 +107,8 @@ class SignupData(BaseModel):
     email: EmailStr
     full_name: str
     
-    @validator('password')
+    @field_validator('password')
+    @classmethod
     def validate_password(cls, v):
         if len(v) < 6:
             raise ValueError('Password must be at least 6 characters')
@@ -114,7 +116,8 @@ class SignupData(BaseModel):
             raise ValueError('Password too long')
         return v
     
-    @validator('username')
+    @field_validator('username')
+    @classmethod
     def validate_username(cls, v):
         if len(v) < 3:
             raise ValueError('Username must be at least 3 characters')
@@ -122,7 +125,8 @@ class SignupData(BaseModel):
             raise ValueError('Username must contain only letters and numbers')
         return v
     
-    @validator('full_name')
+    @field_validator('full_name')
+    @classmethod
     def validate_full_name(cls, v):
         if len(v) < 2:
             raise ValueError('Full name must be at least 2 characters')
@@ -540,5 +544,10 @@ async def convert_currency(data: dict):
         "transaction": transaction
     }
 
+# Health check endpoint
+@app.get("/")
+async def root():
+    return {"message": "PRAC API is running", "status": "healthy"}
+
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("api_gateway:app", host="0.0.0.0", port=8000, reload=True)
