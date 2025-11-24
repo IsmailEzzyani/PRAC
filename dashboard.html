@@ -1,0 +1,611 @@
+<html>
+    <head>
+        <title>PRAC — Dashboard</title>
+        <style>
+            :root {
+                --bg: #050506;
+                --card: #0b0b0c;
+                --muted: #9aa0a6;
+                --accent1: #7c3aed;
+                --accent2: #00d4ff;
+                --glass: rgba(255,255,255,0.03);
+                --maxw: 1200px;
+                --radius-xl: 28px;
+                --radius-md: 12px;
+                --ease: cubic-bezier(.18,.9,.32,1);
+            }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            html, body { height: 100%; }
+            body {
+                min-height: 100%;
+                font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+                background: radial-gradient(1200px 600px at 10% 10%, rgba(123,60,255,0.08), transparent),
+                            radial-gradient(900px 500px at 90% 80%, rgba(34,211,238,0.06), transparent),
+                            var(--bg);
+                color: #fff;
+                -webkit-font-smoothing: antialiased;
+                line-height: 1.4;
+            }
+
+            .container { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+
+            /* Navigation */
+            header.nav {
+                position: sticky; top: 0; z-index: 40;
+                backdrop-filter: blur(12px) saturate(180%);
+                background: linear-gradient(180deg, rgba(11,11,12,0.85), rgba(11,11,12,0.7));
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+            .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+            .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+            .logo-mark {
+                width: 44px; height: 44px; border-radius: 10px;
+                background: linear-gradient(135deg, var(--accent1), #ff6fb9);
+                display: inline-flex; align-items: center; justify-content: center;
+                font-weight: 800;
+            }
+            .logo-text { font-weight: 700; letter-spacing: 1px; }
+            nav.main-nav { display: flex; align-items: center; gap: 18px; }
+            nav.main-nav a {
+                color: var(--muted); text-decoration: none; font-size: 15px; padding: 8px 12px; border-radius: 8px;
+                transition: all 0.3s var(--ease);
+            }
+            nav.main-nav a:hover { color: #fff; }
+            nav.main-nav a.active {
+                color: #a78bfa;
+                background: rgba(124, 58, 237, 0.1);
+            }
+
+            .btn {
+                padding: 10px 18px; border-radius: 10px; text-decoration: none;
+                font-weight: 600; cursor: pointer; border: none;
+                transition: all 0.3s var(--ease);
+                display: inline-block;
+            }
+            .btn.ghost {
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.1);
+                color: var(--muted);
+            }
+            .btn.ghost:hover {
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(255,255,255,0.2);
+                transform: translateY(-2px);
+            }
+            .btn.primary {
+                background: linear-gradient(90deg, var(--accent1), #ff6fb9);
+                box-shadow: 0 8px 30px rgba(124,58,237,0.25);
+                color: white;
+            }
+            .btn.primary:hover {
+                box-shadow: 0 12px 40px rgba(124,58,237,0.4);
+                transform: translateY(-2px);
+            }
+
+            /* Dashboard Styles */
+            .dashboard-header {
+                padding: 60px 0 40px;
+                background: linear-gradient(135deg, rgba(124,58,237,0.05), rgba(0,212,255,0.03));
+                border-bottom: 1px solid rgba(255,255,255,0.03);
+            }
+
+            h1 {
+                font-size: 52px; line-height: 1.1; margin-bottom: 20px; font-weight: 800;
+                letter-spacing: -0.02em;
+            }
+
+            .subtitle {
+                color: var(--muted);
+                font-size: 18px;
+                margin-bottom: 48px;
+                max-width: 70ch;
+            }
+
+            .wallet-cards {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 24px;
+                margin: 40px 0;
+            }
+
+            .wallet-card {
+                background: linear-gradient(165deg, rgba(20,20,22,0.95), rgba(8,8,9,0.98));
+                border-radius: var(--radius-xl);
+                padding: 24px;
+                border: 1px solid rgba(255,255,255,0.05);
+                transition: all 0.3s var(--ease);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .wallet-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            }
+
+            .wallet-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 60px rgba(124,58,237,0.2);
+            }
+
+            .wallet-amount {
+                font-size: 32px;
+                font-weight: 800;
+                background: linear-gradient(90deg, #fff, #a78bfa);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                margin: 16px 0;
+            }
+
+            .transaction-list {
+                background: rgba(255,255,255,0.02);
+                border-radius: var(--radius-md);
+                padding: 20px;
+                margin-top: 40px;
+            }
+
+            .transaction-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+                transition: background 0.3s var(--ease);
+            }
+
+            .transaction-item:hover {
+                background: rgba(255,255,255,0.03);
+            }
+
+            .footer {
+                padding: 48px 0; color: var(--muted); font-size: 14px;
+                text-align: center; border-top: 1px solid rgba(255,255,255,0.03);
+                margin-top: 60px;
+            }
+
+            /* Send Money Modal */
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.8);
+                backdrop-filter: blur(10px);
+                z-index: 1000;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal-content {
+                background: linear-gradient(165deg, rgba(20,20,22,0.95), rgba(8,8,9,0.98));
+                border-radius: var(--radius-xl);
+                padding: 32px;
+                border: 1px solid rgba(255,255,255,0.1);
+                width: 90%;
+                max-width: 400px;
+                position: relative;
+            }
+
+            .close-modal {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                background: none;
+                border: none;
+                color: var(--muted);
+                font-size: 24px;
+                cursor: pointer;
+            }
+
+            @media (max-width: 980px) {
+                .wallet-cards {
+                    grid-template-columns: 1fr;
+                }
+                
+                h1 {
+                    font-size: 40px;
+                }
+            }
+
+            @media (max-width: 540px) {
+                .logo-text { display: none; }
+                h1 { font-size: 32px; }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Navigation -->
+        <header class="nav">
+            <div class="container nav-inner">
+                <a class="logo" href="">
+                    <div class="logo-mark">P</div>
+                    <div class="logo-text">PRAC</div>
+                </a>
+
+                <nav class="main-nav">
+                    <a href="rates.html">Rates</a>
+                    <a href="dashboard.html" class="active">Dashboard</a>
+                    <span style="color: var(--muted); font-size: 14px;" id="userWelcome">Welcome!</span>
+                    <a class="btn ghost" href="#" id="logoutBtn">Log out</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-header">
+            <div class="container">
+                <h1>Your Dashboard</h1>
+                <p class="subtitle">Manage your funds, track transactions, and send money worldwide</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="wallet-cards">
+                <div class="wallet-card">
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
+                        <div style="font-weight: 700; font-size: 16px;">Primary Wallet</div>
+                        <div style="padding: 6px 12px; background: rgba(124,58,237,0.2); border-radius: 20px; font-size: 12px; color: #a78bfa;">USD</div>
+                    </div>
+                    <div class="wallet-amount" id="usdBalance">$12,430.50</div>
+                    <div style="color: var(--muted); font-size: 14px;">Available balance</div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn primary" style="flex: 1;" onclick="openSendModal()">Send</button>
+                        <button class="btn ghost" style="flex: 1;" onclick="showReceiveInfo()">Receive</button>
+                    </div>
+                </div>
+
+                <div class="wallet-card">
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
+                        <div style="font-weight: 700; font-size: 16px;">Euro Wallet</div>
+                        <div style="padding: 6px 12px; background: rgba(0,212,255,0.2); border-radius: 20px; font-size: 12px; color: var(--accent2);">EUR</div>
+                    </div>
+                    <div class="wallet-amount" id="eurBalance">€8,245.75</div>
+                    <div style="color: var(--muted); font-size: 14px;">Available balance</div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn primary" style="flex: 1;" onclick="convertCurrency()">Convert</button>
+                        <button class="btn ghost" style="flex: 1;">Details</button>
+                    </div>
+                </div>
+
+                <div class="wallet-card">
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 16px;">
+                        <div style="font-weight: 700; font-size: 16px;">GBP Wallet</div>
+                        <div style="padding: 6px 12px; background: rgba(255,111,185,0.2); border-radius: 20px; font-size: 12px; color: #ff6fb9;">GBP</div>
+                    </div>
+                    <div class="wallet-amount" id="gbpBalance">£5,120.30</div>
+                    <div style="color: var(--muted); font-size: 14px;">Available balance</div>
+                    <div style="display: flex; gap: 12px; margin-top: 20px;">
+                        <button class="btn primary" style="flex: 1;" onclick="openSendModal()">Transfer</button>
+                        <button class="btn ghost" style="flex: 1;">History</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="transaction-list">
+                <h3 style="margin-bottom: 20px;">Recent Transactions</h3>
+                <div id="transactionsContainer">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Send Money Modal -->
+        <div class="modal" id="sendModal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeSendModal()">&times;</button>
+                <h3 style="margin-bottom: 20px;">Send Money</h3>
+                <form id="sendForm">
+                    <div class="form-group">
+                        <label class="form-label">Recipient</label>
+                        <input type="text" class="form-input" id="recipient" placeholder="Enter recipient username" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-input" id="amount" placeholder="Enter amount" required step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Currency</label>
+                        <select class="form-input" id="currency">
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn primary" style="width: 100%; margin-top: 20px;">Send Money</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="container">
+                <div style="margin-bottom: 16px; font-size: 16px; font-weight: 600;">PRAC — Pay • Receive • Convert</div>
+                <div>© 2024 PRAC · <a href="#" style="color: var(--muted); text-decoration: none;">Security</a> · <a href="#" style="color: var(--muted); text-decoration: none;">Support</a> · <a href="rates.html" style="color: var(--muted); text-decoration: none;">Rates</a></div>
+            </div>
+        </div>
+
+        // In dashboard.html - Replace the entire script section with this:
+
+        <script>
+            const API_BASE = 'http://localhost:8000';
+            let currentUser = null;
+
+            // Check authentication
+            window.addEventListener('load', function() {
+                const user = localStorage.getItem('prac_user');
+                if (!user || !JSON.parse(user).loggedIn) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                currentUser = JSON.parse(user);
+                updateUserWelcome();
+                loadWalletData();
+                loadTransactions();
+            });
+
+            function updateUserWelcome() {
+                const welcomeElement = document.getElementById('userWelcome');
+                if (welcomeElement && currentUser.user_data) {
+                    welcomeElement.textContent = `Welcome, ${currentUser.user_data.full_name || currentUser.username}!`;
+                }
+            }
+
+            async function loadWalletData() {
+                try {
+                    const response = await fetch(`${API_BASE}/wallet/${currentUser.username}`);
+                    if (response.ok) {
+                        const walletData = await response.json();
+                        updateWalletDisplay(walletData);
+                    } else {
+                        console.error('Failed to load wallet data');
+                        showError('Failed to load wallet data');
+                    }
+                } catch (error) {
+                    console.error('Error loading wallet:', error);
+                    showError('Network error: Could not load wallet data');
+                }
+            }
+
+            function updateWalletDisplay(walletData) {
+                // Update USD wallet
+                const usdBalance = document.getElementById('usdBalance');
+                if (usdBalance) {
+                    usdBalance.textContent = `$${walletData.balance_usd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                }
+                
+                // Update other wallets
+                if (walletData.wallets) {
+                    walletData.wallets.forEach(wallet => {
+                        const balanceElement = document.getElementById(`${wallet.currency.toLowerCase()}Balance`);
+                        if (balanceElement) {
+                            balanceElement.textContent = `${wallet.symbol}${wallet.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                        }
+                    });
+                }
+            }
+
+            async function loadTransactions() {
+                try {
+                    const response = await fetch(`${API_BASE}/transactions/${currentUser.username}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        displayTransactions(data.transactions);
+                    } else {
+                        console.error('Failed to load transactions');
+                        showError('Failed to load transactions');
+                    }
+                } catch (error) {
+                    console.error('Error loading transactions:', error);
+                    showError('Network error: Could not load transactions');
+                }
+            }
+
+            function displayTransactions(transactions) {
+                const container = document.getElementById('transactionsContainer');
+                if (!container) return;
+
+                if (!transactions || transactions.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--muted); padding: 40px;">No transactions yet</div>';
+                    return;
+                }
+
+                container.innerHTML = transactions.map(transaction => `
+                    <div class="transaction-item">
+                        <div>
+                            <div style="font-weight: 600;">
+                                ${getTransactionDescription(transaction)}
+                            </div>
+                            <div style="color: var(--muted); font-size: 14px;">
+                                ${transaction.date} • ${transaction.status}
+                            </div>
+                        </div>
+                        <div style="color: ${getTransactionColor(transaction)}; font-weight: 600;">
+                            ${getTransactionAmount(transaction)}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function getTransactionDescription(transaction) {
+                switch(transaction.type) {
+                    case 'sent': return `Sent to ${transaction.recipient || transaction.to}`;
+                    case 'received': return `Received from ${transaction.recipient || transaction.from}`;
+                    case 'conversion': return `Currency conversion: ${transaction.description}`;
+                    case 'fee': return transaction.description;
+                    case 'welcome': return 'Welcome bonus';
+                    default: return transaction.description || 'Transaction';
+                }
+            }
+
+            function getTransactionAmount(transaction) {
+                const symbol = transaction.currency === 'USD' ? '$' : 
+                            transaction.currency === 'EUR' ? '€' : 
+                            transaction.currency === 'GBP' ? '£' : '';
+                
+                const sign = transaction.type === 'received' || transaction.type === 'welcome' ? '+' : '-';
+                return `${sign}${symbol}${transaction.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            }
+
+            function getTransactionColor(transaction) {
+                switch(transaction.type) {
+                    case 'received':
+                    case 'welcome': return '#5af78e';
+                    case 'sent':
+                    case 'fee': return '#ff6b6b';
+                    default: return 'var(--accent2)';
+                }
+            }
+
+            // Modal functions
+            function openSendModal() {
+                document.getElementById('sendModal').style.display = 'flex';
+            }
+
+            function closeSendModal() {
+                document.getElementById('sendModal').style.display = 'none';
+                document.getElementById('sendForm').reset();
+            }
+
+            // Send money form
+            document.getElementById('sendForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const recipient = document.getElementById('recipient').value.trim();
+                const amount = parseFloat(document.getElementById('amount').value);
+                const currency = document.getElementById('currency').value;
+
+                if (!recipient) {
+                    showError('Please enter a recipient username');
+                    return;
+                }
+
+                if (!amount || amount <= 0) {
+                    showError('Please enter a valid amount');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/wallet/send`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username: currentUser.username,
+                            amount: amount,
+                            recipient: recipient,
+                            currency: currency
+                        })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        showSuccess('Money sent successfully!');
+                        closeSendModal();
+                        loadWalletData(); // Refresh wallet data
+                        loadTransactions(); // Refresh transactions
+                    } else {
+                        const error = await response.json();
+                        showError('Send failed: ' + error.detail);
+                    }
+                } catch (error) {
+                    console.error('Send error:', error);
+                    showError('Send failed: Could not connect to server');
+                }
+            });
+
+            function showReceiveInfo() {
+                alert('To receive money, share your PRAC username: ' + currentUser.username);
+            }
+
+            function convertCurrency() {
+                alert('Currency conversion feature would open here');
+                // In a real app, this would open a conversion modal
+            }
+
+            // Utility functions for notifications
+            function showError(message) {
+                showNotification(message, 'error');
+            }
+
+            function showSuccess(message) {
+                showNotification(message, 'success');
+            }
+
+            function showNotification(text, type) {
+                const notification = document.createElement('div');
+                notification.textContent = text;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: ${type === 'error' ? 'rgba(255,107,107,0.2)' : 'rgba(90,247,142,0.2)'};
+                    border: 1px solid ${type === 'error' ? 'rgba(255,107,107,0.4)' : 'rgba(90,247,142,0.4)'};
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 12px;
+                    backdrop-filter: blur(10px);
+                    z-index: 10000;
+                    animation: slideIn 0.3s var(--ease);
+                    font-size: 14px;
+                    font-weight: 600;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s var(--ease)';
+                    setTimeout(() => notification.remove(), 300);
+                }, 4000);
+            }
+
+            // Add notification animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(400px); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(400px); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+                e.preventDefault();
+                
+                try {
+                    await fetch(`${API_BASE}/auth/logout`, {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                } catch (error) {
+                    console.error('Logout error:', error);
+                } finally {
+                    localStorage.removeItem('prac_user');
+                    window.location.href = 'login.html';
+                }
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                const modal = document.getElementById('sendModal');
+                if (e.target === modal) {
+                    closeSendModal();
+                }
+            });
+        </script>
+    </body>
+</html>

@@ -1000,6 +1000,47 @@
                 }
                 });
             });
+            // Enhanced FX rate updates from API
+            async function updateFxFromAPI(){
+                try {
+                    const response = await fetch('http://localhost:8000/rates');
+                    if (response.ok) {
+                        const rates = await response.json();
+                        
+                        const elEur = document.getElementById('rate-usd-eur');
+                        const elGbp = document.getElementById('rate-usd-gbp');
+                        const elMad = document.getElementById('rate-usd-mad');
+                        const fxRate = document.getElementById('fxRate');
+                        
+                        if (elEur && rates.USD_EUR) {
+                            elEur.style.animation = 'counter 0.5s var(--ease)';
+                            setTimeout(() => elEur.style.animation = '', 500);
+                            elEur.textContent = rates.USD_EUR.toFixed(4);
+                        }
+                        if (elGbp && rates.USD_GBP) {
+                            elGbp.style.animation = 'counter 0.5s var(--ease)';
+                            setTimeout(() => elGbp.style.animation = '', 500);
+                            elGbp.textContent = rates.USD_GBP.toFixed(4);
+                        }
+                        if (elMad && rates.USD_MAD) {
+                            elMad.style.animation = 'counter 0.5s var(--ease)';
+                            setTimeout(() => elMad.style.animation = '', 500);
+                            elMad.textContent = rates.USD_MAD.toFixed(4);
+                        }
+                        if (fxRate && rates.USD_EUR) {
+                            fxRate.textContent = `1 USD → ${rates.USD_EUR.toFixed(4)} EUR`;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching rates:', error);
+                    // Fallback to existing animation
+                    updateFx();
+                }
+            }
+
+            // Replace the existing setInterval with:
+            setInterval(updateFxFromAPI, 3000);
+            updateFxFromAPI(); // Initial call
 
             })();
         </script>
