@@ -1,0 +1,224 @@
+<html>
+<head>
+    <title>PRAC — Login</title>
+    <style>
+        :root {
+            --bg: #050506;
+            --card: #0b0b0c;
+            --muted: #9aa0a6;
+            --accent1: #7c3aed;
+            --accent2: #00d4ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Inter, system-ui, sans-serif;
+            background: var(--bg);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(123,60,255,0.08), transparent),
+                        radial-gradient(900px 500px at 90% 80%, rgba(34,211,238,0.06), transparent),
+                        var(--bg);
+        }
+        
+        .login-container {
+            background: linear-gradient(165deg, rgba(20,20,22,0.95), rgba(8,8,9,0.98));
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo-mark {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent1), #ff6fb9);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: var(--muted);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent1);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-group input {
+            margin-right: 8px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, var(--accent1), #ff6fb9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .links {
+            text-align: center;
+            color: var(--muted);
+        }
+        
+        .links a {
+            color: var(--accent2);
+            text-decoration: none;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            text-align: center;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div class="logo-mark">P</div>
+            <h1>PRAC</h1>
+        </div>
+        
+        <h2>Welcome back</h2>
+        <p class="subtitle">Sign in to your PRAC account</p>
+        
+        <div class="error" id="errorMessage">Invalid username or password</div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label">Username or email</label>
+                <input type="text" class="form-input" id="email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="password" placeholder="Enter your password" required>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="remember">
+                <label for="remember">Remember me</label>
+            </div>
+            
+            <button type="submit" class="btn" href="dashboard.html">Sign in</button>
+        </form>
+        
+        <div class="links">
+            <a href="forgot-password.html">Forgot password?</a><br><br>
+            Don't have an account? <a href="signup.html">Sign up</a>
+        </div>
+    </div>
+
+    <script>
+        // Simple login that accepts any email with @
+        function simpleLogin(email, password) {
+            // Check if email contains @
+            if (email.includes('@')) {
+                // Create user object
+                const user = {
+                    loggedIn: true,
+                    username: email.split('@')[0], // Use part before @ as username
+                    email: email,
+                    is_admin: true // Give admin access to everyone
+                };
+                
+                // Save to localStorage
+                localStorage.setItem('prac_user', JSON.stringify(user));
+                return true;
+            }
+            return false;
+        }
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('errorMessage');
+            
+            if (simpleLogin(email, password)) {
+                // Success - redirect to dashboard
+                window.location.href = 'dashboard.html';
+            } else {
+                // Show error
+                errorElement.style.display = 'block';
+                errorElement.textContent = 'Please enter a valid email address (must contain @)';
+            }
+        });
+
+        // Optional: Auto-fill for testing
+        window.addEventListener('load', function() {
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        });
+    </script>
+</body>
+</html>
